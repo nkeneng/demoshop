@@ -39,6 +39,8 @@ services:
     image: alpine
     <<: *shopware
     command: chown 82:82 /var/www/html/files /var/www/html/public/theme /var/www/html/public/media /var/www/html/public/thumbnail /var/www/html/public/sitemap
+    networks:
+      - shopware-network
 
   init:
     <<: *shopware
@@ -48,6 +50,8 @@ services:
         condition: service_healthy
       init-perm:
         condition: service_completed_successfully
+    networks:
+      - shopware-network
 
   web:
     <<: *shopware
@@ -68,6 +72,8 @@ services:
     entrypoint: [ "php", "bin/console", "messenger:consume", "async low_priority", "--time-limit=300", "--memory-limit=512M" ]
     deploy:
       replicas: 3
+    networks:
+      - shopware-network
 
   scheduled-task:
     <<: *shopware
@@ -78,13 +84,15 @@ services:
       init:
         condition: service_completed_successfully
     entrypoint: [ "php", "bin/console", "scheduled-task:run" ]
+    networks:
+      - shopware-network
   
   cache:
     image: valkey/valkey:latest
     networks:
       - shopware-network
 
-      
+
 volumes:
   mysql-data:
   files:
