@@ -17,8 +17,6 @@ x-environment: &shopware
     - media:/var/www/html/public/media
     - thumbnail:/var/www/html/public/thumbnail
     - sitemap:/var/www/html/public/sitemap
-  networks:
-    - shopware-network
 
 services:
   database:
@@ -56,6 +54,8 @@ services:
     depends_on:
       init:
         condition: service_completed_successfully
+    networks:
+      - shopware-network
 
   worker:
     <<: *shopware
@@ -83,6 +83,8 @@ services:
     image: valkey/valkey:latest
     networks:
       - shopware-network
+
+      
 volumes:
   mysql-data:
   files:
