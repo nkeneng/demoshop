@@ -1,3 +1,11 @@
+# Anchor each common volume line (scalar anchors)
+x-vol-files: &vol_files files:/var/www/html/files
+x-vol-theme: &vol_theme theme:/var/www/html/public/theme
+x-vol-media: &vol_media media:/var/www/html/public/media
+x-vol-thumbnail: &vol_thumbnail thumbnail:/var/www/html/public/thumbnail
+x-vol-sitemap: &vol_sitemap sitemap:/var/www/html/public/sitemap
+
+# Common service definition
 x-environment: &shopware
   image: ghcr.io/shopwarelabs/example-docker-repository:latest@sha256:80115160231cb70cc9b9c11441f76c95278959cf812cae67fa452ee09621b541
   environment:
@@ -12,11 +20,11 @@ x-environment: &shopware
     PHP_SESSION_SAVE_PATH: 'tcp://cache:6379/1'
     SERVICE_REGISTRY_URL: ${SERVICE_REGISTRY_URL}
   volumes:
-    - files:/var/www/html/files
-    - theme:/var/www/html/public/theme
-    - media:/var/www/html/public/media
-    - thumbnail:/var/www/html/public/thumbnail
-    - sitemap:/var/www/html/public/sitemap
+    - *vol_files
+    - *vol_theme
+    - *vol_media
+    - *vol_thumbnail
+    - *vol_sitemap
 
 services:
   database:
@@ -60,6 +68,15 @@ services:
         condition: service_completed_successfully
     networks:
       - shopware-network
+    # "Merged" volumes: include the common ones + your extra binds
+    volumes:
+      - *vol_files
+      - *vol_theme
+      - *vol_media
+      - *vol_thumbnail
+      - *vol_sitemap
+      - ./config:/var/www/html/config
+      - ./custom:/var/www/html/custom
 
   worker:
     <<: *shopware
@@ -86,12 +103,11 @@ services:
     entrypoint: [ "php", "bin/console", "scheduled-task:run" ]
     networks:
       - shopware-network
-  
+
   cache:
     image: valkey/valkey:latest
     networks:
       - shopware-network
-
 
 volumes:
   mysql-data:
