@@ -4,6 +4,7 @@ x-vol-theme: &vol_theme theme:/var/www/html/public/theme
 x-vol-media: &vol_media media:/var/www/html/public/media
 x-vol-thumbnail: &vol_thumbnail thumbnail:/var/www/html/public/thumbnail
 x-vol-sitemap: &vol_sitemap sitemap:/var/www/html/public/sitemap
+x-vol-plugins: &vol_plugins plugins:/var/www/html/custom
 
 # Common service definition
 x-environment: &shopware
@@ -25,6 +26,7 @@ x-environment: &shopware
     - *vol_media
     - *vol_thumbnail
     - *vol_sitemap
+    - *vol_plugins
 
 services:
   database:
@@ -81,8 +83,8 @@ services:
       - *vol_media
       - *vol_thumbnail
       - *vol_sitemap
+      - *vol_plugins
       - ./config:/var/www/html/config
-      - ./custom:/var/www/html/custom
     env_file:
       - .env
 
@@ -130,6 +132,7 @@ volumes:
   media:
   thumbnail:
   sitemap:
+  plugins:
 
 networks:
   shopware-network:
