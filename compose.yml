@@ -9,7 +9,7 @@ x-vol-sitemap: &vol_sitemap sitemap:/var/www/html/public/sitemap
 x-environment: &shopware
   image: ghcr.io/shopwarelabs/example-docker-repository:latest@sha256:80115160231cb70cc9b9c11441f76c95278959cf812cae67fa452ee09621b541
   environment:
-    APP_ENV: prod
+    APP_ENV: ${APP_ENV:-prod}
     DATABASE_URL: ${DATABASE_URL:-mysql://shopware:shopware@database:3306/shopware}
     DATABASE_HOST: ${DATABASE_HOST:-database}
     APP_URL: ${APP_URL:-http://localhost:8000}
@@ -42,6 +42,8 @@ services:
       retries: 10
     networks:
       - shopware-network
+    env_file:
+      - .env
 
   init-perm:
     image: alpine
@@ -49,6 +51,8 @@ services:
     command: chown 82:82 /var/www/html/files /var/www/html/public/theme /var/www/html/public/media /var/www/html/public/thumbnail /var/www/html/public/sitemap
     networks:
       - shopware-network
+    env_file:
+      - .env
 
   init:
     <<: *shopware
@@ -60,6 +64,8 @@ services:
         condition: service_completed_successfully
     networks:
       - shopware-network
+    env_file:
+      - .env
 
   web:
     <<: *shopware
@@ -77,6 +83,8 @@ services:
       - *vol_sitemap
       - ./config:/var/www/html/config
       - ./custom:/var/www/html/custom
+    env_file:
+      - .env
 
   worker:
     <<: *shopware
@@ -91,6 +99,8 @@ services:
       replicas: 3
     networks:
       - shopware-network
+    env_file:
+      - .env
 
   scheduled-task:
     <<: *shopware
@@ -103,11 +113,15 @@ services:
     entrypoint: [ "php", "bin/console", "scheduled-task:run" ]
     networks:
       - shopware-network
+    env_file:
+      - .env
 
   cache:
     image: valkey/valkey:latest
     networks:
       - shopware-network
+    env_file:
+      - .env
 
 volumes:
   mysql-data:
